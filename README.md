@@ -24,4 +24,17 @@ A username (`-u`) and password (`-w`) can be specified to authenticate the SSH s
 -w / --password: Password.
 ```
 
-Example: `python3 main.py -a 0.0.0.0 -p 22 -u admin -p admin`
+Example: `python3 main.py -a 0.0.0.0 -p 22 -u root -w root`
+
+# TODO:
+**Overview/Monitorings**
+- [ ] Add overview of amount of connections by IP
+- [ ] Add overview of amount of commands by IP
+- [ ] Add overview of username attempt count
+- [ ] Add a storage method to save this data
+- [ ] Add a basic web interface for the required information. 
+
+**Script**
+- [ ] Check if script methods can be put in modulair instances. 
+- [ ] Support command history in current session
+- [ ] Add basic sys variable support, dynamically. ( just like commands )
