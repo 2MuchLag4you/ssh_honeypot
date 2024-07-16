@@ -14,6 +14,7 @@ class Server(paramiko.ServerInterface):
         self.client_user = None
         self.input_username = input_username
         self.input_password = input_password
+        self.hostname = "honeybox"
         self.connected_time = datetime.now()
         try:
             print("Loading server key.")
@@ -23,17 +24,17 @@ class Server(paramiko.ServerInterface):
             self.host_key = paramiko.RSAKey.generate(2048)
             self.host_key.write_private_key_file("server.key")
         
-        self.__prompt = "honeybox$ "
+        self.__prompt = f"{self.hostname}$ "
         # Define the prompt for the SSH server.
 
     def check_channel_request(self, kind, chanid):
         if kind == 'session':
             return paramiko.OPEN_SUCCEEDED
         
-    def get_allowed_auths(self, username):
+    def get_allowed_auths(self, username: str):
         return "password"
     
-    def check_auth_password(self, username, password):
+    def check_auth_password(self, username: str, password: str):
         funnel_logger.info(f'Client {self.client_ip} attempted connection with ' + f'username: {username}, ' + f'password: {password}')
         creds_logger.info(f'{self.client_ip}, {username}, {password}')
         self.client_user = username
@@ -45,7 +46,7 @@ class Server(paramiko.ServerInterface):
         else:
             return paramiko.AUTH_SUCCESSFUL
         
-    def check_channel_shell_request(self, channel):
+    def check_channel_shell_request(self, channel: paramiko.Channel):
         self.event.set()
         return True
     
@@ -54,11 +55,11 @@ class Server(paramiko.ServerInterface):
     
     def prompt(self):
         if self.client_user is not None:
-            self.__prompt = f"{self.client_user}@honeybox$ "
+            self.__prompt = f"{self.client_user}@{self.hostname}$ "
         else:
-            self.__prompt = "honeybox$ "
+            self.__prompt = f"{self.hostname}$ "
         return self.__prompt
     
-    def check_channel_exec_request(self, channel, command):
+    def check_channel_exec_request(self, channel: paramiko.Channel, command: bytes):
         command = str(command)
         return True

@@ -78,6 +78,13 @@ def shell_handle(channel: paramiko.Channel, server: Server) -> None:
             if command_str:
                 command_history.append(command)
             
+            print(command_str.split(' ')[0])
+            # Split the command by spaces.
+            full_command = command_str
+            command_str = command_str.split(' ')[0]
+            
+            
+            # Handle the exit command.
             if command_str == 'exit':
                 response = b"\n Goodbye!\r\n"
                 funnel_logger.info(f'Command {command.strip()}' + "executed by " f'{server.client_user}@{server.client_ip}')
@@ -85,23 +92,24 @@ def shell_handle(channel: paramiko.Channel, server: Server) -> None:
                 channel.close()
             # Handle the help command.
             elif command_str == 'help':
-                response = b"\nAvailable commands:\n"
+                response = b"\nAvailable commands:\r\n"
                 for cmd, (_, desc) in command_registry.items():
-                    response += f"{cmd} - {desc}\n".encode('utf-8')
+                    response += "{:<8} - {:<10}\r\n".format(cmd, desc).encode('utf-8')
+                    # response += f"{cmd} - {desc}\r\n".enchode('utf-8')
                 response += b"\r\n"
-                funnel_logger.info(f'Command {command_str}' + " executed by " f'{server.client_user}@{server.client_ip}')
+                funnel_logger.info(f'Command {full_command}' + " executed by " f'{server.client_user}@{server.client_ip}')
             # Handle the dynamically imported commands from the commands/ directory.
             elif command_str in command_registry:
                 handle_func, _ = command_registry[command_str]
-                response = handle_func(server, command_str)
-                funnel_logger.info(f'Command {command_str}' + " executed by " f'{server.client_user}@{server.client_ip}')
+                response = handle_func(server, full_command)
+                funnel_logger.info(f'Command {full_command}' + " executed by " f'{server.client_user}@{server.client_ip}')
             # Handle empty command.
             elif command_str == "":
                 response = b"\r\n"
             # Handle command not found. 
             else:
-                print (f"Session for {server.client_user}@{server.client_ip} executed unknown command: {command_str}")
-                funnel_logger.error(f"Session for {server.client_user}@{server.client_ip} executed unknown command: {command_str}")
+                print (f"Session for {server.client_user}@{server.client_ip} executed unknown command: {full_command}")
+                funnel_logger.error(f"Session for {server.client_user}@{server.client_ip} executed unknown command: {full_command}")
                 response = b"\nCommand not found.\r\n"
                 
             # Send the response to the client.

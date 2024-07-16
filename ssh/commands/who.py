@@ -10,4 +10,4 @@ def handle(server, command):
 
     return response
 
-description = ""
+description = "See current logged in users."
