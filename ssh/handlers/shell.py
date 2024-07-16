@@ -80,7 +80,7 @@ def shell_handle(channel: paramiko.Channel, server: Server) -> None:
             
             if command_str == 'exit':
                 response = b"\n Goodbye!\r\n"
-                funnel_logger.info(f'Command {command.strip()}' + "executed by " f'{server.client_ip}')
+                funnel_logger.info(f'Command {command.strip()}' + "executed by " f'{server.client_user}@{server.client_ip}')
                 print(f"Session for {server.client_user}@{server.client_ip} exited.")
                 channel.close()
             # Handle the help command.
@@ -89,20 +89,20 @@ def shell_handle(channel: paramiko.Channel, server: Server) -> None:
                 for cmd, (_, desc) in command_registry.items():
                     response += f"{cmd} - {desc}\n".encode('utf-8')
                 response += b"\r\n"
-                funnel_logger.info(f'Command {command_str}' + " executed by " f'{server.client_ip}')
+                funnel_logger.info(f'Command {command_str}' + " executed by " f'{server.client_user}@{server.client_ip}')
             # Handle the dynamically imported commands from the commands/ directory.
             elif command_str in command_registry:
                 handle_func, _ = command_registry[command_str]
                 response = handle_func(server, command_str)
-                funnel_logger.info(f'Command {command_str}' + " executed by " f'{server.client_ip}')
+                funnel_logger.info(f'Command {command_str}' + " executed by " f'{server.client_user}@{server.client_ip}')
+            # Handle empty command.
             elif command_str == "":
                 response = b"\r\n"
+            # Handle command not found. 
             else:
                 print (f"Session for {server.client_user}@{server.client_ip} executed unknown command: {command_str}")
                 funnel_logger.error(f"Session for {server.client_user}@{server.client_ip} executed unknown command: {command_str}")
                 response = b"\nCommand not found.\r\n"
-                # Handle the command not found error.
-                # response = b"\n" + bytes(command.strip()) + b"\r\n"
                 
             # Send the response to the client.
             channel.send(response)
@@ -133,3 +133,7 @@ def shell_handle(channel: paramiko.Channel, server: Server) -> None:
             channel.send(b"Ctrl+C key pressed, closing connection.\r\n")
             print(f"Ctrl+C key pressed on the session, closing connection for client {server.client_user}@{server.client_ip}.")
             channel.close()
+        else:
+            print("Uncatched key pressed.")
+            print(char)
+            pass
