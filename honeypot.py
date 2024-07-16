@@ -1,9 +1,10 @@
 import socket
 import threading
+import time
 from ssh.handlers import client_handle
 
 class HoneypotServer:
-    def __init__(self, address="0.0.0.0", port=8022, username=None, password=None, concurrent_connections=100):
+    def __init__(self, address:str="0.0.0.0", port:int=8022, username:str|None=None, password:str|None=None, concurrent_connections:int=100, banner:bool=True, delay:int =5):
         self.address = address
         self.port = port
         self.username = username
@@ -13,6 +14,8 @@ class HoneypotServer:
         self.client_threads = []
         self.client_sockets = []
         self.running = True
+        self.banner_enabled = banner
+        self.banner_delay = delay
 
     def start(self):
         self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -31,6 +34,10 @@ class HoneypotServer:
                     client_socket, addr = self.server_socket.accept()
                     self.client_sockets.append(client_socket)
                     
+                    if self.banner_enabled:
+                        # Introduce a delay before handling the client
+                        time.sleep(self.banner_delay)  # Adjust delay as needed
+                        
                     # Start a new thread to handle the client connection.
                     client_thread = threading.Thread(target=self.handle_client, args=(client_socket, addr))
                     client_thread.start()
@@ -42,8 +49,12 @@ class HoneypotServer:
             print("Server shutting down.")
             self.stop()
         
-    def handle_client(self, client_socket, addr):
+    def handle_client(self, client_socket: socket.socket, addr):
         try:
+            if self.banner_enabled:
+                banner_message = b"Welcome to my SSH honeypot server\n"
+                client_socket.send(banner_message)
+                
             client_handle(client_socket, addr, self.username, self.password)
         finally:
             client_socket.close()
@@ -64,6 +75,6 @@ class HoneypotServer:
             client_thread.join()
         print("All connections have been closed.")
 
-def honeypot(address="0.0.0.0", port=8022, username=None, password=None, concurrent_connections=100):
-    server = HoneypotServer(address, port, username, password, concurrent_connections)
+def honeypot(address:str="0.0.0.0", port:int=8022, username:str|None=None, password:str|None=None, concurrent_connections:int=100, banner:bool=True, delay:int =5):
+    server = HoneypotServer(address, port, username, password, concurrent_connections, banner, delay)
     server.start()
