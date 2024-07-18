@@ -6,6 +6,7 @@ def handle(server, command):
         + b"\r\n"
         + "{:<10} {:<10} {:<20}".format(server.client_user, "ttys006", server.connected_time.strftime("%b %d %H:%M")).encode('utf-8')
         + b"\r\n"
+        + b"\r\n"
     ) 
 
     return response
