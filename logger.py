@@ -1,8 +1,13 @@
 import logging
+import os
 from logging.handlers import RotatingFileHandler
 
 # Logging Format.
 logging_format = logging.Formatter('%(asctime)s %(message)s')
+
+# Create the logs directory if it does not exist.
+if not os.path.exists('./logs'):
+    os.makedirs('./logs')
 
 # Funnel (catch all) Logger.
 funnel_logger = logging.getLogger('FunnelLogger')
@@ -10,6 +15,22 @@ funnel_logger.setLevel(logging.INFO)
 funnel_handler = RotatingFileHandler('./logs/cmd_audits.log', maxBytes=2000, backupCount=5)
 funnel_handler.setFormatter(logging_format)
 funnel_logger.addHandler(funnel_handler)
+
+# Create the logger
+server_logger = logging.getLogger('ServerLogger')
+server_logger.setLevel(logging.INFO)
+
+# Create handlers
+server_handler = RotatingFileHandler('./logs/server_log.log', maxBytes=2000, backupCount=5)
+console_handler = logging.StreamHandler()
+
+# Set formatter
+server_handler.setFormatter(logging_format)
+console_handler.setFormatter(logging_format)
+
+# Add handlers to the logger
+server_logger.addHandler(server_handler)
+server_logger.addHandler(console_handler)
 
 # Credentials Logger. Captures IP Address, Username, Password.
 creds_logger = logging.getLogger('CredsLogger')
