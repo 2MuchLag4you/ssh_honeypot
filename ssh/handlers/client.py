@@ -1,6 +1,6 @@
 import paramiko
 import ssh
-from logger import funnel_logger, server_logger
+from honeypot.logger import funnel_logger, server_logger
 
 def client_handle(client, addr, username: str | None, password: str | None) -> None: 
     """Handle the client connection."""

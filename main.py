@@ -14,5 +14,8 @@ if __name__ == "__main__":
     
     args = parser.parse_args()
     
+    # Configuring the honeypot
+     
+    # Start the honeypot
     honeypot.honeypot(args.address, args.port, args.username, args.password, args.concurrent_connections, args.banner, args.delay)
 

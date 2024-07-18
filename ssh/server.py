@@ -1,7 +1,7 @@
 import paramiko
 import threading
 from datetime import datetime
-from logger import creds_logger, funnel_logger, server_logger
+from honeypot.logger import creds_logger, funnel_logger, server_logger
 
 
 # Define the class that will handle the SSH server.

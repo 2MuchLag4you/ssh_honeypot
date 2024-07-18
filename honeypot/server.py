@@ -2,7 +2,7 @@ import socket
 import threading
 import time
 from ssh.handlers import client_handle
-from logger import funnel_logger, server_logger
+from honeypot.logger import funnel_logger, server_logger
 
 class HoneypotServer:
     def __init__(self, address:str="0.0.0.0", port:int=8022, username:str|None=None, password:str|None=None, concurrent_connections:int=100, banner:bool=True, delay:int =5):

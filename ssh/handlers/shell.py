@@ -1,5 +1,5 @@
 
-from logger import funnel_logger, server_logger
+from honeypot.logger import funnel_logger, server_logger
 from ssh.server import Server
 from ssh.commands import command_registry
 from ssh.variables import variable_registry
