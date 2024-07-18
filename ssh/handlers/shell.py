@@ -1,8 +1,10 @@
 
-from logger import funnel_logger
+from logger import funnel_logger, server_logger
 from ssh.server import Server
 from ssh.commands import command_registry
+from ssh.variables import variable_registry
 import paramiko
+import re
 
 def shell_handle(channel: paramiko.Channel, server: Server) -> None:
     """Handle the shell session."""
@@ -83,19 +85,18 @@ def shell_handle(channel: paramiko.Channel, server: Server) -> None:
             full_command = command_str
             command_str = command_str.split(' ')[0]
             
-            
             # Handle the exit command.
-            if command_str == 'exit':
-                response = b"\n Goodbye!\r\n"
+            if command_str in ['exit', 'quit', 'logout']:
+                response = b"\nGoodbye!\r\n"
                 funnel_logger.info(f'Command {command.strip()}' + "executed by " f'{server.client_user}@{server.client_ip}')
-                print(f"Session for {server.client_user}@{server.client_ip} exited.")
+                server_logger.info(f"Session for {server.client_user}@{server.client_ip} exited.")
+                channel.send(response)
                 channel.close()
             # Handle the help command.
             elif command_str == 'help':
                 response = b"\nAvailable commands:\r\n"
                 for cmd, (_, desc) in command_registry.items():
                     response += "{:<8} - {:<10}\r\n".format(cmd, desc).encode('utf-8')
-                    # response += f"{cmd} - {desc}\r\n".enchode('utf-8')
                 response += b"\r\n"
                 funnel_logger.info(f'Command {full_command}' + " executed by " f'{server.client_user}@{server.client_ip}')
             # Handle the dynamically imported commands from the commands/ directory.
@@ -103,6 +104,10 @@ def shell_handle(channel: paramiko.Channel, server: Server) -> None:
                 handle_func, _ = command_registry[command_str]
                 response = handle_func(server, full_command)
                 funnel_logger.info(f'Command {full_command}' + " executed by " f'{server.client_user}@{server.client_ip}')
+            # Handle the dynamically imported variables from the variables/ directory.
+            elif re.match(r'^\$.*', command_str):
+                for var, (handle_func, _) in variable_registry.items():
+                    response = f"\r\n{var}={handle_func(server, command_str)}\r\n\r\n".encode('utf-8')
             # Handle empty command.
             elif command_str == "":
                 response = b"\r\n"
@@ -110,7 +115,7 @@ def shell_handle(channel: paramiko.Channel, server: Server) -> None:
             else:
                 print (f"Session for {server.client_user}@{server.client_ip} executed unknown command: {full_command}")
                 funnel_logger.error(f"Session for {server.client_user}@{server.client_ip} executed unknown command: {full_command}")
-                response = b"\nCommand not found.\r\n"
+                response = b"\nCommand not found.\r\n\r\n"
                 
             # Send the response to the client.
             channel.send(response)
@@ -139,7 +144,7 @@ def shell_handle(channel: paramiko.Channel, server: Server) -> None:
         # Handle Ctrl+C key.
         elif char == b"\x03":
             channel.send(b"Ctrl+C key pressed, closing connection.\r\n")
-            print(f"Ctrl+C key pressed on the session, closing connection for client {server.client_user}@{server.client_ip}.")
+            server_logger.info(f"Ctrl+C key pressed on the session, closing connection for client {server.client_user}@{server.client_ip}.")
             channel.close()
         else:
             print("Uncatched key pressed.")
