@@ -1,7 +1,4 @@
 #!/bin/zsh
-# Change to the directory where the honeypot is located
-cd /Users/$USERNAME/Documents/GitHub/ssh_honeypot/
-
 # Check if the Python3 is installed
 if ! command -v python3 &> /dev/null; then
     echo "Python3 not found"
@@ -20,5 +17,5 @@ if [ ! -f "server.key" ]; then
 fi
 
 # Start the SSH honeypot
-echo "Starting SSH Honeypot"
-python3 main.py -a 0.0.0.0 -p 8022
+echo "StartupScript: Starting SSH Honeypot"
+python3 main.py -a 0.0.0.0 -p 8022 --banner -u user
