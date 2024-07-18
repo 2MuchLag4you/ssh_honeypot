@@ -37,4 +37,14 @@ Example: `python3 main.py -a 0.0.0.0 -p 22 -u root -w root`
 **Script**
 - [ ] Check if script methods can be put in modulair instances. 
 - [ ] Support command history in current session
-- [ ] Add basic sys variable support, dynamically. ( just like commands )
+- [x] Add basic sys variable support, dynamically. ( just like commands )
+- [ ] Add support for only specifying a specific password. ( Support any username that gives the password )
+- [ ] Support multiple usernames (in validation)
+- [ ] Support multiple passwords (in validation)
+
+**Usage**
+- [ ] Allow change of motd banner
+- [ ] Allow change of hostname
+- [ ] Allow change of log directory 
+- [ ] Create a systemd setup script
+- [ ] Create a docker container to run the application
