@@ -1,5 +1,6 @@
 import paramiko
 import ssh
+from logger import funnel_logger, server_logger
 
 def client_handle(client, addr, username: str | None, password: str | None) -> None: 
     """Handle the client connection."""
@@ -23,7 +24,8 @@ def client_handle(client, addr, username: str | None, password: str | None) -> N
         channel = transport.accept(100)
         
         if channel is None:
-            print("No channel was opened.")
+            funnel_logger.error(f"Client {client_ip} failed to open a channel.")
+            server_logger.error(f"Client {client_ip} failed to open a channel.")
             return
         
         try:
@@ -31,6 +33,7 @@ def client_handle(client, addr, username: str | None, password: str | None) -> N
             channel.send("Welcome to the SSH session\r\n\r\n")
             
             ssh.handlers.shell_handle(channel, server=server)
+            server_logger.info(f"Client {client_ip} disconnected from server.")
             
         except Exception as error:
             print(error)
