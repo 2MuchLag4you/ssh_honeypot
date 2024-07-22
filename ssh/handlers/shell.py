@@ -20,42 +20,48 @@ def shell_handle(channel: paramiko.Channel, server: Server) -> None:
         # If a new character is received, reset the history index
         if char != b'\x1b':
             history_index = -1
-            
+
         ### ? In progress, handling arrow keys for command history
         
-        # if char == b'\x1b':
-        #     char += channel.recv(2)
-        #     print(history_index)
-        #     # print(command_history)
-        #     if char == b'\x1b[A':  # Arrow up
-        #         if command_history:
-        #             if history_index == -1:
-        #                 history_index = len(command_history) - 1
-        #             elif history_index > 0:
-        #                 history_index -= 1
-        #             command = command_history[history_index]
-        #             # Clear the current input line
-        #             channel.send(b'\r' + b' ' * (len(server.prompt()) + len(command)) + b'\r')
-        #             # Print the prompt and the command
-        #             channel.send(f"{server.prompt()}{command.decode('utf-8')}".encode('utf-8'))
-        #     elif char == b'\x1b[B':  # Arrow down
-        #         if command_history:
-        #             if history_index < len(command_history) - 1:
-        #                 history_index += 1
-        #                 command = command_history[history_index]
-        #             else:
-        #                 history_index = -1
-        #                 command = b''
-        #             # Clear the current input line
-        #             channel.send(b'\r' + b' ' * (len(server.prompt()) + len(command)) + b'\r')
-        #             # Print the prompt and the command
-        #             channel.send(f"{server.prompt()}{command.decode('utf-8')}".encode('utf-8'))
-        #     elif char == b'\x1b[C': # Arrow right
-        #         print('Right')
-        #     elif char == b'\x1b[D': # Arrow left
-        #         print('Left')                    
+        if char == b'\x1b':
+            char += channel.recv(2)
+            print(history_index)
+            # print(command_history)
+            if char == b'\x1b[A':  # Arrow up
+                if command_history:
+                    if history_index == -1:
+                        history_index = len(command_history) - 1
+                    elif history_index > 0:
+                        history_index -= 1
+                    command = command_history[history_index]
+                    # Clear the current input line
+                    channel.send(b'\r' + b' ' * 30 + b'\r')
+                    # channel.send(b'\r' + b' ' * (len(server.prompt()) + len(command)) + b'\r')
+                    # Print the prompt and the command
+                    command_prompt = f"{server.prompt()}{command}"
+                    print(command_prompt)
+                    channel.send(f"{server.prompt()}{command.decode('utf-8')}".encode('utf-8'))
+            elif char == b'\x1b[B':  # Arrow down
+                if command_history:
+                    if history_index < len(command_history) - 1:
+                        history_index += 1
+                        command = command_history[history_index]
+                    else:
+                        history_index = -1
+                        command = b''
+                    # Clear the current input line
+                    channel.send(b'\r' + b' ' * 30 + b'\r')
+                    # channel.send(b'\r' + b' ' * (len(server.prompt()) + len(command)) + b'\r')
+                    command_prompt = f"{server.prompt()}{command}"
+                    print(command_prompt)
+                    # Print the prompt and the command
+                    channel.send(f"{server.prompt()}{command.decode('utf-8')}".encode('utf-8'))
+            elif char == b'\x1b[C': # Arrow right
+                print('Right')
+            elif char == b'\x1b[D': # Arrow left
+                print('Left')                    
                     
-        #     continue
+            continue
         
         ### ? In progress, handling arrow keys for command history
         
@@ -68,61 +74,77 @@ def shell_handle(channel: paramiko.Channel, server: Server) -> None:
         if char not in {b'\x1b[A', b'\x1b[B'}:
             command += char
             
-            
-        # print(char)
-        # print(command)
-        
         # Emulate common shell commands.
         if char == b"\r":
             # Convert bytes to string.
             command_str = command.strip().decode('utf-8')
-            # Handle the exit command.
+            channel.send(b"\r\n")
+            # # Handle the exit command.
             if command_str:
                 command_history.append(command)
             
-            print(command_str.split(' ')[0])
             # Split the command by spaces.
             full_command = command_str
-            command_str = command_str.split(' ')[0]
+            
+            # command_str = command_str.split(' ')[0]
+            if full_command == "":
+                channel.send(f"{server.prompt()}")
+                continue
+            
+            # Exception handling.
+            try:
+                command_str = full_command.split(' ')[0]
+            except IndexError:
+                channel.send(f"\r\nError occurred while parsing the command.\r\n")
+                channel.send(f"{server.prompt()}")
+                continue
             
             # Handle the exit command.
-            if command_str in ['exit', 'quit', 'logout']:
-                response = b"\nGoodbye!\r\n"
+            if command_str in 'exit':
+                response = b"\n Goodbye!\r\n"
                 funnel_logger.info(f'Command {command.strip()}' + "executed by " f'{server.client_user}@{server.client_ip}')
                 server_logger.info(f"Session for {server.client_user}@{server.client_ip} exited.")
-                channel.send(response)
                 channel.close()
+            
             # Handle the help command.
             elif command_str == 'help':
-                response = b"\nAvailable commands:\r\n"
+                response = b"Available commands:\r\n"
                 for cmd, (_, desc) in command_registry.items():
                     response += "{:<8} - {:<10}\r\n".format(cmd, desc).encode('utf-8')
+                    # response += f"{cmd} - {desc}\r\n".enchode('utf-8')
                 response += b"\r\n"
                 funnel_logger.info(f'Command {full_command}' + " executed by " f'{server.client_user}@{server.client_ip}')
+            
             # Handle the dynamically imported commands from the commands/ directory.
             elif command_str in command_registry:
                 handle_func, _ = command_registry[command_str]
                 response = handle_func(server, full_command)
                 funnel_logger.info(f'Command {full_command}' + " executed by " f'{server.client_user}@{server.client_ip}')
+                
             # Handle the dynamically imported variables from the variables/ directory.
             elif re.match(r'^\$.*', command_str):
                 for var, (handle_func, _) in variable_registry.items():
-                    response = f"\r\n{var}={handle_func(server, command_str)}\r\n\r\n".encode('utf-8')
+                    response = f"{var}={handle_func(server, command_str)}\r\n".encode('utf-8')
+            
             # Handle empty command.
             elif command_str == "":
                 response = b"\r\n"
+            
             # Handle command not found. 
             else:
                 print (f"Session for {server.client_user}@{server.client_ip} executed unknown command: {full_command}")
                 funnel_logger.error(f"Session for {server.client_user}@{server.client_ip} executed unknown command: {full_command}")
-                response = b"\nCommand not found.\r\n\r\n"
+                response = b"Command not found.\r\n"
                 
             # Send the response to the client.
             channel.send(response)
+            
             # Restore the prompt.
             channel.send(f"{server.prompt()}")
+            
             # Reset the command
             command = b""
+            
         # Handle tab key.
         #? Tab key is represented by the following byte: b"\t"
         elif char == b"\t":
@@ -139,14 +161,8 @@ def shell_handle(channel: paramiko.Channel, server: Server) -> None:
                 command = command[:-2]
                 # print("Backspace key pressed.")
                 channel.send(b"\b \b")
-        elif char == b"\x1b":
-            print("")
         # Handle Ctrl+C key.
         elif char == b"\x03":
             channel.send(b"Ctrl+C key pressed, closing connection.\r\n")
             server_logger.info(f"Ctrl+C key pressed on the session, closing connection for client {server.client_user}@{server.client_ip}.")
             channel.close()
-        else:
-            print("Uncatched key pressed.")
-            print(char)
-            pass

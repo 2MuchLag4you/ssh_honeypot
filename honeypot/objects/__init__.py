@@ -1,0 +1,1 @@
+from .hopeypot_settings import HoneypotSettings

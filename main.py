@@ -1,5 +1,23 @@
 import argparse
 import honeypot
+import honeypot.objects
+import honeypot.objects.hopeypot_settings
+import honeypot.logger
+
+global honeypot_settings
+
+honeypot_settings = honeypot.objects.HoneypotSettings(
+    address="0.0.0.0",
+    port=8022,
+    username=None,
+    password=None,
+    concurrent_connections=100,
+    banner=True,
+    delay=5,
+    hostname="hostnametest",
+    log_directory="./log",
+    overwrite_arguments=False
+)
 
 if __name__ == "__main__":
     # Create parser
@@ -15,7 +33,18 @@ if __name__ == "__main__":
     args = parser.parse_args()
     
     # Configuring the honeypot
-     
+    honeypot_settings = honeypot.objects.HoneypotSettings(
+        address=args.address,
+        port=args.port,
+        username=args.username,
+        password= args.password,
+        concurrent_connections=args.concurrent_connections,
+        banner=args.banner,
+        delay=args.delay,
+        hostname=honeypot_settings.hostname,
+        log_directory=honeypot_settings.log_directory
+    )
+    
     # Start the honeypot
-    honeypot.honeypot(args.address, args.port, args.username, args.password, args.concurrent_connections, args.banner, args.delay)
+    honeypot.honeypot(honeypot_settings)
 

@@ -28,9 +28,9 @@ Example: `python3 main.py -a 0.0.0.0 -p 22 -u root -w root`
 
 # TODO:
 **Overview/Monitorings**
-- [ ] Add overview of amount of connections by IP
+- [X] Add overview of amount of connections by IP
 - [ ] Add overview of amount of commands by IP
-- [ ] Add overview of username attempt count
+- [X] Add overview of username attempt count
 - [ ] Add a storage method to save this data
 - [ ] Add a basic web interface for the required information. 
 
@@ -38,13 +38,13 @@ Example: `python3 main.py -a 0.0.0.0 -p 22 -u root -w root`
 - [ ] Check if script methods can be put in modulair instances. 
 - [ ] Support command history in current session
 - [x] Add basic sys variable support, dynamically. ( just like commands )
-- [ ] Add support for only specifying a specific password. ( Support any username that gives the password )
+- [x] Add support for only specifying a specific password. ( Support any username that gives the password )
 - [ ] Support multiple usernames (in validation)
 - [ ] Support multiple passwords (in validation)
 
 **Usage**
 - [ ] Allow change of motd banner
-- [ ] Allow change of hostname
-- [ ] Allow change of log directory 
+- [x] Allow change of hostname
+- [x] Allow change of log directory 
 - [ ] Create a systemd setup script
 - [ ] Create a docker container to run the application

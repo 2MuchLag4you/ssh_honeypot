@@ -13,30 +13,30 @@ def handle(server, command):
     hardware_platform = b"x86_64"
     operating_system = b"GNU/Linux"
     
-    result = b"\r\n" + kernel_name
+    result = b"" + kernel_name
     # Handle the arguments.
     for arg in args:
         arg = str(arg).lower()
         if arg == "":
-            result = b"\r\n" + kernel_name
+            result = b"" + kernel_name
         if arg == "-a":
-            result = b"\r\n" + kernel_name + b" " + nodename + b" " + kernel_release + b" " + kernel_version + b" " + machine + b" " + processor + b" " + hardware_platform + b" " + operating_system
+            result = b"" + kernel_name + b" " + nodename + b" " + kernel_release + b" " + kernel_version + b" " + machine + b" " + processor + b" " + hardware_platform + b" " + operating_system
         elif arg == "-m":
-            result = b"\r\n" + machine
+            result = b"" + machine
         elif arg == "-n":
-            result = b"\r\n" + nodename
+            result = b"" + nodename
         elif arg == "-o":
-            result = b"\r\n" + operating_system
+            result = b"" + operating_system
         elif arg == "-p":
-            result = b"\r\n" + processor
+            result = b"" + processor
         elif arg == "-r":
-            result = b"\r\n" + kernel_release
+            result = b"" + kernel_release
         elif arg == "-s":
-            result = b"\r\n" + kernel_name
+            result = b"" + kernel_name
         elif arg == "-v":
-            result = b"\r\n" + kernel_version
+            result = b"" + kernel_version
         else:
-            result = b"\r\nuname: invalid option -- '" + arg.encode('utf-8') + b"'\r\nusage: uname [-amnoprsv]\r\n"
+            result = b"uname: invalid option -- '" + arg.encode('utf-8') + b"'\r\nusage: uname [-amnoprsv]\r\n"
         
         break
     

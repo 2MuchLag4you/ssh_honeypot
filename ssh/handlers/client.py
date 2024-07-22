@@ -2,7 +2,7 @@ import paramiko
 import ssh
 from honeypot.logger import funnel_logger, server_logger
 
-def client_handle(client, addr, username: str | None, password: str | None) -> None: 
+def client_handle(client, addr, username: str | None, password: str | None, hostname: str | None, env_directory: str="") -> None: 
     """Handle the client connection."""
     client_ip = addr[0]
     # print(client)
@@ -14,7 +14,7 @@ def client_handle(client, addr, username: str | None, password: str | None) -> N
         transport.local_version = "SSH-2.0-MySSHServer_1.0"
         
         # Create a new instance of the Server class.
-        server = ssh.Server(client_ip=client_ip, input_username=username, input_password=password)
+        server = ssh.Server(client_ip=client_ip, input_username=username, input_password=password, hostname=hostname, env_directory=env_directory)
         
         # Add the host key to the server.
         transport.add_server_key(server.host_key)
