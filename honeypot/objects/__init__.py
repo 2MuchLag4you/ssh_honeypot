@@ -1,1 +1,1 @@
-from .hopeypot_settings import HoneypotSettings
+from .honeypot_settings import HoneypotSettings

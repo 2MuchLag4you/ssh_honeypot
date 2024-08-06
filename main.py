@@ -1,7 +1,7 @@
 import argparse
 import honeypot
 import honeypot.objects
-import honeypot.objects.hopeypot_settings
+import honeypot.objects.honeypot_settings
 import honeypot.logger
 
 global honeypot_settings
