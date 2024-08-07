@@ -10,7 +10,6 @@ class Server(paramiko.ServerInterface):
     def __init__(self, client_ip: str, input_username:str|None=None, input_password:str|None=None, hostname:str="honeybox", env_directory:str=""):
         self.event = threading.Event()
         self.client_ip = client_ip
-        self.command_history = []
         self.client_user = None
         self.input_username = input_username
         self.input_password = input_password
@@ -18,6 +17,7 @@ class Server(paramiko.ServerInterface):
         self.connected_time = datetime.now()
         self.env_directory = env_directory
         self.json_env_username = "client_logins.json"
+        self.login_command = None
         self.json_path = os.path.join(self.env_directory, self.json_env_username)
         try:
             server_logger.info("Loading server key.")
@@ -30,6 +30,7 @@ class Server(paramiko.ServerInterface):
             server_logger.info("Server key created.")
         
         self.__prompt = f"{self.hostname}$ "
+        
         # Define the prompt for the SSH server.
 
     def check_channel_request(self, kind, chanid):
@@ -98,6 +99,17 @@ class Server(paramiko.ServerInterface):
     
     def check_channel_exec_request(self, channel: paramiko.Channel, command: bytes):
         command = str(command)
+        # if a command is entered by the client, log it
+        if command:
+            self.login_command = command
+            funnel_logger.info(f'Session {self.client_user}@{self.client_ip} parsed the following command while connecting: {command}')
+            server_logger.info(f'Session {self.client_user}@{self.client_ip} parsed the following command while connecting: {command}')
+            date = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+            command_history_directory = f"{self.env_directory}/command_history"
+            os.makedirs(command_history_directory, exist_ok=True)
+            command_history_file = f"{command_history_directory}/command_history-{self.client_ip}-{date}.json"
+            json.dump([{"timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),"command": command}], open(command_history_file, "w"))
+            return False
         return True
         
     def add_login(self, client_ip, client_username, client_password, successfull):

@@ -1,20 +1,24 @@
 
 from honeypot.logger import funnel_logger, server_logger
+from datetime import datetime
 from ssh.server import Server
 from ssh.commands import command_registry
 from ssh.variables import variable_registry
 import paramiko
 import re
+import json
+from os import makedirs, path
 
-def shell_handle(channel: paramiko.Channel, server: Server) -> None:
+def shell_handle(channel: paramiko.Channel, server: Server, client_ip: str) -> None:
     """Handle the shell session."""
     # Send the prompt to the client.
     channel.send(f"{server.prompt()}")
     # Variable to store the command.
     command = b""
     command_history = []
+    decoded_list = []
     history_index = -1
-    
+     
     while True:
         char = channel.recv(1)
         # If a new character is received, reset the history index
@@ -82,6 +86,7 @@ def shell_handle(channel: paramiko.Channel, server: Server) -> None:
             # # Handle the exit command.
             if command_str:
                 command_history.append(command)
+                decoded_list.append({"timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"), "command" : command.decode('utf-8')})
             
             # Split the command by spaces.
             full_command = command_str
@@ -144,7 +149,7 @@ def shell_handle(channel: paramiko.Channel, server: Server) -> None:
             
             # Reset the command
             command = b""
-            
+            json.dump(decoded_list, open(command_history_file, 'w'))            
         # Handle tab key.
         #? Tab key is represented by the following byte: b"\t"
         elif char == b"\t":

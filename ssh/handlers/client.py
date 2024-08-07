@@ -2,11 +2,14 @@ import paramiko
 import ssh
 from honeypot.logger import funnel_logger, server_logger
 
-def client_handle(client, addr, username: str | None, password: str | None, hostname: str | None, env_directory: str="") -> None: 
+def client_handle(client, addr, honeypot_server) -> None: 
     """Handle the client connection."""
     client_ip = addr[0]
-    # print(client)
-    # print(addr)
+    username = honeypot_server.username 
+    password = honeypot_server.password 
+    hostname = honeypot_server.hostname 
+    env_directory = honeypot_server.env_directory
+    banner_message = honeypot_server.banner_message
     print(f"{client_ip} ({username}) connected to server.")
     
     try:
@@ -30,9 +33,9 @@ def client_handle(client, addr, username: str | None, password: str | None, host
         
         try:
             # Send a generic welcome banner to the client.
-            channel.send("Welcome to the SSH session\r\n\r\n")
+            channel.send(banner_message)
             
-            ssh.handlers.shell_handle(channel, server=server)
+            ssh.handlers.shell_handle(channel, server=server, client_ip=client_ip)
             server_logger.info(f"Client {client_ip} disconnected from server.")
             
         except Exception as error:

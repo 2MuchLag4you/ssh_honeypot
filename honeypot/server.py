@@ -26,6 +26,7 @@ class HoneypotServer:
         self.env_directory = settings.env_directory
         self.json_env = "client_connections.json"
         self.json_path = os.path.join(self.env_directory, self.json_env)
+        self.banner_message = settings.banner_message
 
     def start(self):
         server_logger.info("Starting honeypot server.")
@@ -72,7 +73,7 @@ class HoneypotServer:
         
     def handle_client(self, client_socket: socket.socket, addr):
         try:
-            client_handle(client_socket, addr, self.username, self.password, self.hostname, self.env_directory)
+            client_handle(client_socket, addr, self)
         finally:
             client_socket.close()
             server_logger.info(f"Closed connection to {addr[0]}:{addr[1]}")

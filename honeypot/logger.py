@@ -5,7 +5,6 @@ from main import honeypot_settings
 
 # Logging Format.
 logging_format = logging.Formatter('%(asctime)s %(message)s')
-print(honeypot_settings.log_directory)
 
 # Create the logs directory if it does not exist.
 if not os.path.exists(f'{honeypot_settings.log_directory}'):
