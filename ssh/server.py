@@ -84,6 +84,8 @@ class Server(paramiko.ServerInterface):
             return paramiko.AUTH_SUCCESSFUL
         
     def check_channel_shell_request(self, channel: paramiko.Channel):
+        funnel_logger.info(f'Session {self.client_user}@{self.client_ip} requested a shell.')
+        server_logger.info(f'Session {self.client_user}@{self.client_ip} requested a shell.')
         self.event.set()
         return True
     
@@ -121,7 +123,7 @@ class Server(paramiko.ServerInterface):
     def __add_username(self, client_username):
         # Check if self.env_directory exists and create it if not
         if not os.path.exists(self.env_directory):
-            os.makedirs(self.env_directory)
+            os.makedirs(self.env_directory, exist_ok=True)
             server_logger.info(f"Created directory: {self.env_directory}")   
         
         # Check if the JSON file exists, create a new one with initial data if not

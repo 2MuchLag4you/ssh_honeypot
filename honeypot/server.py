@@ -99,9 +99,7 @@ class HoneypotServer:
         
     def __add_connection_count(self, client_ip):
         # Check if self.env_directory exists and create it if not
-        if not os.path.exists(self.env_directory):
-            os.makedirs(self.env_directory)
-            server_logger.info(f"Created directory: {self.env_directory}")   
+        os.makedirs(self.env_directory, exist_ok=True)
         
         # Check if the JSON file exists, create a new one with initial data if not
         if not os.path.exists(self.json_path):

@@ -10,7 +10,6 @@ def client_handle(client, addr, honeypot_server) -> None:
     hostname = honeypot_server.hostname 
     env_directory = honeypot_server.env_directory
     banner_message = honeypot_server.banner_message
-    print(f"{client_ip} ({username}) connected to server.")
     
     try:
         transport = paramiko.Transport(client)  

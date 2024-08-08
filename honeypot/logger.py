@@ -7,8 +7,7 @@ from main import honeypot_settings
 logging_format = logging.Formatter('%(asctime)s %(message)s')
 
 # Create the logs directory if it does not exist.
-if not os.path.exists(f'{honeypot_settings.log_directory}'):
-    os.makedirs(f'{honeypot_settings.log_directory}')
+os.makedirs(f'{honeypot_settings.log_directory}', exist_ok=True)
 
 # Funnel (catch all) Logger.
 funnel_logger = logging.getLogger('FunnelLogger')
