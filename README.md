@@ -29,7 +29,7 @@ Example: `python3 main.py -a 0.0.0.0 -p 22 -u root -w root`
 # TODO:
 **Overview/Monitorings**
 - [X] Add overview of amount of connections by IP
-- [ ] Add overview of amount of commands by IP
+~~- [ ] Add overview of amount of commands by IP~~
 - [X] Add overview of username attempt count
 - [ ] Add a storage method to save this data
 - [ ] Add a basic web interface for the required information. 
@@ -43,7 +43,7 @@ Example: `python3 main.py -a 0.0.0.0 -p 22 -u root -w root`
 - [ ] Support multiple passwords (in validation)
 
 **Usage**
-- [ ] Allow change of motd banner
+- [x] Allow change of motd banner
 - [x] Allow change of hostname
 - [x] Allow change of log directory 
 - [ ] Create a systemd setup script
