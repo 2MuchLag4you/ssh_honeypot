@@ -7,7 +7,7 @@ from ssh.variables import variable_registry
 import paramiko
 import re
 import json
-from os import makedirs, path
+import os
 
 def shell_handle(channel: paramiko.Channel, server: Server, client_ip: str) -> None:
     """Handle the shell session."""
@@ -18,6 +18,12 @@ def shell_handle(channel: paramiko.Channel, server: Server, client_ip: str) -> N
     command_history = []
     decoded_list = []
     history_index = -1
+    
+    date = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    command_history_directory = f"{server.env_directory}/command_history"
+    os.makedirs(command_history_directory, exist_ok=True)
+    command_history_file = f"{command_history_directory}/command_history-{client_ip}-{date}.json"
+    
      
     while True:
         char = channel.recv(1)
@@ -29,7 +35,6 @@ def shell_handle(channel: paramiko.Channel, server: Server, client_ip: str) -> N
         
         if char == b'\x1b':
             char += channel.recv(2)
-            print(history_index)
             # print(command_history)
             if char == b'\x1b[A':  # Arrow up
                 if command_history:
@@ -57,7 +62,7 @@ def shell_handle(channel: paramiko.Channel, server: Server, client_ip: str) -> N
                     channel.send(b'\r' + b' ' * 30 + b'\r')
                     # channel.send(b'\r' + b' ' * (len(server.prompt()) + len(command)) + b'\r')
                     command_prompt = f"{server.prompt()}{command}"
-                    print(command_prompt)
+                    # print(command_prompt)w
                     # Print the prompt and the command
                     channel.send(f"{server.prompt()}{command.decode('utf-8')}".encode('utf-8'))
             elif char == b'\x1b[C': # Arrow right
@@ -149,7 +154,9 @@ def shell_handle(channel: paramiko.Channel, server: Server, client_ip: str) -> N
             
             # Reset the command
             command = b""
-            json.dump(decoded_list, open(command_history_file, 'w'))            
+            # Save the command history to a file.
+            json.dump(decoded_list, open(command_history_file, "w"))
+
         # Handle tab key.
         #? Tab key is represented by the following byte: b"\t"
         elif char == b"\t":
