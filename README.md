@@ -37,7 +37,7 @@ Example: `python3 main.py -a 0.0.0.0 -p 22 -u root -w root`
 
 **Script**
 - [ ] Check if script methods can be put in modulair instances. 
-- [ ] Support command history in current session
+- [x] Support command history in current session
 - [x] Add basic sys variable support, dynamically. ( just like commands )
 - [x] Add support for only specifying a specific password. ( Support any username that gives the password )
 - [ ] Support multiple usernames (in validation)

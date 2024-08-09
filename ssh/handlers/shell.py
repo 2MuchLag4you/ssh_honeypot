@@ -38,32 +38,39 @@ def shell_handle(channel: paramiko.Channel, server: Server, client_ip: str) -> N
             # print(command_history)
             if char == b'\x1b[A':  # Arrow up
                 if command_history:
-                    if history_index == -1:
-                        history_index = len(command_history) - 1
-                    elif history_index > 0:
+                    # if history_index == -1:
+                        # history_index = len(command_history) - 1
+                    # elif history_index > 0:
+                    print(len(command_history))
+                    print(history_index)
+                    if history_index > 0:
                         history_index -= 1
+                    elif history_index == 0:
+                        history_index = 0
+                    else:
+                        history_index = len(command_history) - 1
                     command = command_history[history_index]
                     # Clear the current input line
                     channel.send(b'\r' + b' ' * 30 + b'\r')
-                    # channel.send(b'\r' + b' ' * (len(server.prompt()) + len(command)) + b'\r')
-                    # Print the prompt and the command
-                    command_prompt = f"{server.prompt()}{command}"
-                    print(command_prompt)
-                    channel.send(f"{server.prompt()}{command.decode('utf-8')}".encode('utf-8'))
+                    channel.send('\033[2K')
+                    channel.send('\033[K')
+                    
+                    output = f"{server.prompt()}{command.decode('utf-8')}".encode('utf-8')
+                    
+                    channel.send(output)
+                    
+                    
             elif char == b'\x1b[B':  # Arrow down
                 if command_history:
-                    if history_index < len(command_history) - 1:
+                    if history_index < len(command_history):
                         history_index += 1
-                        command = command_history[history_index]
+                        command = command_history[history_index - 1] 
                     else:
-                        history_index = -1
                         command = b''
+                        
                     # Clear the current input line
                     channel.send(b'\r' + b' ' * 30 + b'\r')
-                    # channel.send(b'\r' + b' ' * (len(server.prompt()) + len(command)) + b'\r')
-                    command_prompt = f"{server.prompt()}{command}"
-                    # print(command_prompt)w
-                    # Print the prompt and the command
+                    
                     channel.send(f"{server.prompt()}{command.decode('utf-8')}".encode('utf-8'))
             elif char == b'\x1b[C': # Arrow right
                 print('Right')
@@ -90,7 +97,7 @@ def shell_handle(channel: paramiko.Channel, server: Server, client_ip: str) -> N
             channel.send(b"\r\n")
             # # Handle the exit command.
             if command_str:
-                command_history.append(command)
+                command_history.append(command.replace(b'\r', b''))
                 decoded_list.append({"timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"), "command" : command.decode('utf-8')})
             
             # Split the command by spaces.

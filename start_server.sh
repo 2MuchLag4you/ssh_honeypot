@@ -18,4 +18,4 @@ fi
 
 # Start the SSH honeypot
 echo "StartupScript: Starting SSH Honeypot"
-python3 main.py -a 0.0.0.0 -p 8022 --banner -u user
+python3 main.py -a 0.0.0.0 -p 8022 --banner -w password
