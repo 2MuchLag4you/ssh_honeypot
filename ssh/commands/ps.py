@@ -16,8 +16,8 @@ def handle(server, command):
     
     # Format the process list with the calculated uptime
     process_list = (
-        "  PID TTY          TIME CMD\r\n"
-        f" 1203 ttys006    {hours:02}:{minutes:02}:{seconds:02} /bin/zsh -i\r\n"
+        "{:<4} {:<7} {:<20}".format("USER", "TTY", "TIME") + "\r\n"
+        f"1203 ttys006 {hours:02}:{minutes:02}:{seconds:02} /bin/zsh -i\r\n"
     )
     
     return f"{process_list}".encode('utf-8')
