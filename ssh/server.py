@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 from honeypot.logger import creds_logger, funnel_logger, server_logger
 import os
 import json
+import random
 # Define the class that will handle the SSH server.
 class Server(paramiko.ServerInterface):
     # Define the constructor for the Server class.
@@ -17,6 +18,8 @@ class Server(paramiko.ServerInterface):
         self.connected_time = datetime.now()
         self.env_directory = env_directory
         self.json_env_username = "client_logins.json"
+        self.start_time = datetime.now()
+        self.random_server_start_timem = self.__get_random_date(datetime(self.start_time.year, 1, 10), self.start_time)
         self.login_command = None
         self.json_path = os.path.join(self.env_directory, self.json_env_username)
         try:
@@ -208,6 +211,19 @@ class Server(paramiko.ServerInterface):
         with open(weekly_log_filename, 'w') as json_file:
             json.dump(weekly_log, json_file, indent=4)
             server_logger.info(f"Updated weekly log file: {weekly_log_filename}")
+
+    def __get_random_date(self, start_date, end_date):
+        """
+        Generate a random date between `start_date` and `end_date`.
+        
+        :param start_date: A datetime object representing the start of the range.
+        :param end_date: A datetime object representing the end of the range.
+        :return: A datetime object representing the random date.
+        """
+        delta = end_date - start_date
+        random_days = random.randint(0, delta.days)
+        random_date = start_date + timedelta(days=random_days)
+        return random_date
 
 
     def __update_monthly_log(self, client_ip, client_username, client_password, successfull):
