@@ -29,8 +29,9 @@ Example: `python3 main.py -a 0.0.0.0 -p 22 -u root -w root`
 # TODO:
 **Overview/Monitorings**
 - [X] Add overview of amount of connections by IP
-~~- [ ] Add overview of amount of commands by IP~~
+- [ ] ~~Add overview of amount of commands by IP~~
 - [X] Add overview of username attempt count
+- [X] Add overview of commands by session
 - [ ] Add a storage method to save this data
 - [ ] Add a basic web interface for the required information. 
 
