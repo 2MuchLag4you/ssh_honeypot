@@ -44,10 +44,11 @@ class HoneypotServer:
     def start_webserver(self):
         from threading import Thread
         from .webserver import app, set_env_directory
+        from waitress import serve
         
         def run():
             set_env_directory(self.env_directory)
-            app.run(host=self.webserver_address, port=self.webserver_port)
+            serve(app, host=self.webserver_address, port=self.webserver_port)
             
         thread = Thread(target=run, daemon=True)
         # Hide output from thread
