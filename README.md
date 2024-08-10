@@ -32,8 +32,8 @@ Example: `python3 main.py -a 0.0.0.0 -p 22 -u root -w root`
 - [ ] ~~Add overview of amount of commands by IP~~
 - [X] Add overview of username attempt count
 - [X] Add overview of commands by session
-- [ ] Add a storage method to save this data
-- [ ] Add a basic web interface for the required information. 
+- [X] Add a storage method to save this data
+- [X] Add a basic web interface for the required information. 
 
 **Script**
 - [ ] Check if script methods can be put in modulair instances. 

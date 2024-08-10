@@ -106,6 +106,7 @@ def logins():
     graphJSON = fig.to_json()
 
     return render_template('graph.html', graphJSON=graphJSON)
+
 @app.route('/connections/monthly')
 def monthly_connections():
     connections_data = []

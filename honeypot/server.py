@@ -49,7 +49,8 @@ class HoneypotServer:
             set_env_directory(self.env_directory)
             app.run(host=self.webserver_address, port=self.webserver_port)
             
-        thread = Thread(target=run)
+        thread = Thread(target=run, daemon=True)
+        # Hide output from thread
         thread.start()
         self.webserver_thread = thread            
         
