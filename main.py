@@ -18,7 +18,10 @@ honeypot_settings = honeypot.objects.HoneypotSettings(
     log_directory="./log",
     env_directory="./env",
     overwrite_arguments=False,
-    banner_message="Welcome to the SSH session\r\n\r\n"
+    banner_message="Welcome to the SSH session\r\n\r\n",
+    webserver_enabled=True,
+    webserver_port=5000,
+    webserver_address="127.0.0.1"
 )
 
 if __name__ == "__main__":
@@ -47,7 +50,10 @@ if __name__ == "__main__":
         log_directory=honeypot_settings.log_directory,
         env_directory=honeypot_settings.env_directory,
         overwrite_arguments=honeypot_settings.overwrite_arguments,
-        banner_message=honeypot_settings.banner_message
+        banner_message=honeypot_settings.banner_message,
+        webserver_enabled=honeypot_settings.webserver_enabled,
+        webserver_address=honeypot_settings.webserver_address,
+        webserver_port=honeypot_settings.webserver_port
     )
     
     # Start the honeypot

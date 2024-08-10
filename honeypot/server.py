@@ -23,10 +23,36 @@ class HoneypotServer:
         self.banner_enabled = settings.banner
         self.banner_delay = settings.delay
         self.logger = None
+        self.banner_message = settings.banner_message
         self.env_directory = settings.env_directory
         self.json_env = "client_connections.json"
-        self.json_path = os.path.join(self.env_directory, self.json_env)
-        self.banner_message = settings.banner_message
+        self.connections_path = os.path.join(self.env_directory, "connections")
+        self.json_path = os.path.join(self.connections_path, self.json_env)
+        self.webserver_enabled = settings.webserver_enabled
+        self.webserver_port = settings.webserver_port
+        self.webserver_address = settings.webserver_address
+        self.webserver_thread = None    
+        os.makedirs(self.env_directory, exist_ok=True)
+        
+        if self.webserver_enabled:
+            funnel_logger.info("Webserver enabled.")
+            funnel_logger.info(f"Webserver address: {self.webserver_address}")
+            funnel_logger.info(f"Webserver port: {self.webserver_port}")
+            funnel_logger.info("Starting webserver.")
+            self.start_webserver()
+
+    def start_webserver(self):
+        from threading import Thread
+        from .webserver import app, set_env_directory
+        
+        def run():
+            set_env_directory(self.env_directory)
+            app.run(host=self.webserver_address, port=self.webserver_port)
+            
+        thread = Thread(target=run)
+        thread.start()
+        self.webserver_thread = thread            
+        
 
     def start(self):
         server_logger.info("Starting honeypot server.")
@@ -100,6 +126,7 @@ class HoneypotServer:
     def __add_connection_count(self, client_ip):
         # Check if self.env_directory exists and create it if not
         os.makedirs(self.env_directory, exist_ok=True)
+        os.makedirs(self.connections_path, exist_ok=True)
         
         # Check if the JSON file exists, create a new one with initial data if not
         if not os.path.exists(self.json_path):
@@ -128,7 +155,8 @@ class HoneypotServer:
     def __update_daily_log(self, client_ip, client_port):
         # Get the current date
         current_date = datetime.now().strftime("%Y-%m-%d")
-        daily_log_filename = os.path.join(self.env_directory, f"connections_{current_date}.json")
+        os.makedirs(self.connections_path, exist_ok=True)
+        daily_log_filename = os.path.join(self.connections_path, f"connections_{current_date}.json")
 
         # Check if the daily log file exists, create it if not
         if not os.path.exists(daily_log_filename):
@@ -156,7 +184,8 @@ class HoneypotServer:
         # Get the start of the current week (Monday)
         current_date = datetime.now()
         start_of_week = (current_date - timedelta(days=current_date.weekday())).strftime("%Y-%m-%d")
-        weekly_log_filename = os.path.join(self.env_directory, f"connections_week_{start_of_week}.json")
+        os.makedirs(self.connections_path, exist_ok=True)
+        weekly_log_filename = os.path.join(self.connections_path, f"connections_week_{start_of_week}.json")
 
         # Check if the weekly log file exists, create it if not
         if not os.path.exists(weekly_log_filename):
@@ -185,7 +214,8 @@ class HoneypotServer:
         # Get the current date and month
         current_date = datetime.now()
         month = current_date.strftime("%Y-%m")
-        monthly_log_filename = os.path.join(self.env_directory, f"connections_{month}.json")
+        os.makedirs(self.connections_path, exist_ok=True)
+        monthly_log_filename = os.path.join(self.connections_path, f"connections_{month}.json")
 
         # Check if the monthly log file exists, create it if not
         if not os.path.exists(monthly_log_filename):

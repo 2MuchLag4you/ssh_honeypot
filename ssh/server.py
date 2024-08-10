@@ -21,7 +21,9 @@ class Server(paramiko.ServerInterface):
         self.start_time = datetime.now()
         self.random_server_start_timem = self.__get_random_date(datetime(self.start_time.year, 1, 10), self.start_time)
         self.login_command = None
-        self.json_path = os.path.join(self.env_directory, self.json_env_username)
+        self.logins_directory = os.path.join(self.env_directory, "logins")
+        self.json_path = os.path.join(self.logins_directory, self.json_env_username)
+        os.makedirs(self.logins_directory, exist_ok=True)
         try:
             server_logger.info("Loading server key.")
             self.host_key = paramiko.RSAKey(filename="server.key")
@@ -156,7 +158,8 @@ class Server(paramiko.ServerInterface):
     def __update_daily_login_log(self, client_ip, client_username, client_password, successfull):
         # Get the current date
         current_date = datetime.now().strftime("%Y-%m-%d")
-        daily_log_filename = os.path.join(self.env_directory, f"logins_{current_date}.json")
+        os.makedirs(self.logins_directory, exist_ok=True)
+        daily_log_filename = os.path.join(self.logins_directory, f"logins_{current_date}.json")
 
         # Check if the daily log file exists, create it if not
         if not os.path.exists(daily_log_filename):
@@ -185,8 +188,9 @@ class Server(paramiko.ServerInterface):
     def __update_weekly_log(self, client_ip, client_username, client_password,successfull):
         # Get the start of the current week (Monday)
         current_date = datetime.now()
+        os.makedirs(self.logins_directory, exist_ok=True)
         start_of_week = (current_date - timedelta(days=current_date.weekday())).strftime("%Y-%m-%d")
-        weekly_log_filename = os.path.join(self.env_directory, f"logins_week_{start_of_week}.json")
+        weekly_log_filename = os.path.join(self.logins_directory, f"logins_week_{start_of_week}.json")
 
         # Check if the weekly log file exists, create it if not
         if not os.path.exists(weekly_log_filename):
@@ -230,7 +234,8 @@ class Server(paramiko.ServerInterface):
         # Get the current date and month
         current_date = datetime.now()
         month = current_date.strftime("%Y-%m")
-        monthly_log_filename = os.path.join(self.env_directory, f"logins_{month}.json")
+        os.makedirs(self.logins_directory, exist_ok=True)
+        monthly_log_filename = os.path.join(self.logins_directory, f"logins_{month}.json")
 
         # Check if the monthly log file exists, create it if not
         if not os.path.exists(monthly_log_filename):
