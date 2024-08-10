@@ -38,11 +38,6 @@ def shell_handle(channel: paramiko.Channel, server: Server, client_ip: str) -> N
             # print(command_history)
             if char == b'\x1b[A':  # Arrow up
                 if command_history:
-                    # if history_index == -1:
-                        # history_index = len(command_history) - 1
-                    # elif history_index > 0:
-                    print(len(command_history))
-                    print(history_index)
                     if history_index > 0:
                         history_index -= 1
                     elif history_index == 0:
@@ -140,8 +135,11 @@ def shell_handle(channel: paramiko.Channel, server: Server, client_ip: str) -> N
                 
             # Handle the dynamically imported variables from the variables/ directory.
             elif re.match(r'^\$.*', command_str):
-                for var, (handle_func, _) in variable_registry.items():
-                    response = f"{var}={handle_func(server, command_str)}\r\n".encode('utf-8')
+                command_str = command_str.replace('$', '')
+                if command_str in variable_registry:
+                    response = f"{command_str}={variable_registry[command_str][0](server, command_str)}\r\n".encode('utf-8')
+                else:
+                    response = b'$'
             
             # Handle empty command.
             elif command_str == "":
