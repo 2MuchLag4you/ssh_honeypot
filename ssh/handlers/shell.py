@@ -138,8 +138,9 @@ def shell_handle(channel: paramiko.Channel, server: Server, client_ip: str) -> N
                 command_str = command_str.replace('$', '')
                 if command_str in variable_registry:
                     response = f"{command_str}={variable_registry[command_str][0](server, command_str)}\r\n".encode('utf-8')
+                    funnel_logger.info(f'Variable {full_command}' + " requested by " f'{server.client_user}@{server.client_ip}')
                 else:
-                    response = b'$'
+                    response = b''
             
             # Handle empty command.
             elif command_str == "":
@@ -147,7 +148,6 @@ def shell_handle(channel: paramiko.Channel, server: Server, client_ip: str) -> N
             
             # Handle command not found. 
             else:
-                print (f"Session for {server.client_user}@{server.client_ip} executed unknown command: {full_command}")
                 funnel_logger.error(f"Session for {server.client_user}@{server.client_ip} executed unknown command: {full_command}")
                 response = b"Command not found.\r\n"
                 

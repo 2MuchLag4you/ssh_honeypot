@@ -1,12 +1,13 @@
 import socket
 import threading
 import time
-from ssh.handlers import client_handle  # Assuming this is correctly implemented elsewhere
-from honeypot.logger import funnel_logger, server_logger  # Assuming these are correctly implemented elsewhere
+from ssh.handlers import client_handle 
+from honeypot.logger import funnel_logger, server_logger
 from honeypot.objects import HoneypotSettings
 import os
 import json
 from datetime import datetime, timedelta
+from honeypot.webserver import app
 
 class HoneypotServer:
     def __init__(self, settings: HoneypotSettings| None = None):
@@ -32,6 +33,8 @@ class HoneypotServer:
         self.webserver_port = settings.webserver_port
         self.webserver_address = settings.webserver_address
         self.webserver_thread = None    
+        self.server_logger = server_logger
+        self.app = app
         os.makedirs(self.env_directory, exist_ok=True)
         
         if self.webserver_enabled:
@@ -48,9 +51,11 @@ class HoneypotServer:
         
         def run():
             set_env_directory(self.env_directory)
-            serve(app, host=self.webserver_address, port=self.webserver_port)
-            
-        thread = Thread(target=run, daemon=True)
+            self.server_logger.info(f"Webserver running on {self.webserver_address}:{self.webserver_port}")
+            serve(self.app, host=self.webserver_address, port=self.webserver_port)
+
+        thread = Thread(target=run, daemon=False, name="webserver")
+        
         # Hide output from thread
         thread.start()
         self.webserver_thread = thread            
@@ -117,6 +122,13 @@ class HoneypotServer:
             self.server_socket.close()
         for client_thread in self.client_threads:
             client_thread.join()
+        
+        if self.webserver_thread:
+            self.server_logger.info("Webserver has been stopped.")
+            for thread in threading.enumerate():
+                if thread.name == "webserver":
+                    thread.join()
+            
         server_logger.info("All connections have been closed.")
         
     def add_connection(self, client_ip, client_port):

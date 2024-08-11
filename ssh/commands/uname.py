@@ -1,5 +1,4 @@
 def handle(server, command):
-    print("Command: " + command)
     args = command.split(" ")
     args.pop(0)
     

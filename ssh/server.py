@@ -47,7 +47,7 @@ class Server(paramiko.ServerInterface):
         return "password"
     
     def check_auth_password(self, username: str, password: str):
-        server_logger.info(f'Client {self.client_ip} attempted connection with ' + f'username: {username}, ' + f'password: {password}')
+        creds_logger.info(f'Client {self.client_ip} attempted connection with ' + f'username: {username}, ' + f'password: {password}')
         self.client_user = username
         if self.input_username is not None and self.input_password is not None:
             if username == self.input_username and password == self.input_password:
@@ -89,7 +89,6 @@ class Server(paramiko.ServerInterface):
             return paramiko.AUTH_SUCCESSFUL
         
     def check_channel_shell_request(self, channel: paramiko.Channel):
-        funnel_logger.info(f'Session {self.client_user}@{self.client_ip} requested a shell.')
         server_logger.info(f'Session {self.client_user}@{self.client_ip} requested a shell.')
         self.event.set()
         return True
@@ -110,7 +109,6 @@ class Server(paramiko.ServerInterface):
         if command:
             self.login_command = command
             funnel_logger.info(f'Session {self.client_user}@{self.client_ip} parsed the following command while connecting: {command}')
-            server_logger.info(f'Session {self.client_user}@{self.client_ip} parsed the following command while connecting: {command}')
             date = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
             command_history_directory = f"{self.env_directory}/command_history"
             os.makedirs(command_history_directory, exist_ok=True)

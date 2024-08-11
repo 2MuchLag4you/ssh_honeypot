@@ -1,10 +1,14 @@
 from flask import Flask, render_template, jsonify, request
+from flask.logging import default_handler
+import logging.config
 import plotly.graph_objects as go
 import os
 import json
 import pandas as pd
 import plotly.express as px
 import re
+from honeypot.logger import web_logger
+
 app = Flask(__name__)
 
 # Paths to the folders containing JSON files
@@ -30,11 +34,13 @@ def load_json_files(directory):
 
 @app.route('/')
 def index():
+    web_logger.info(f"{request.remote_addr} Accessed the index page.")
     return render_template('index.html')
 
 
 @app.route('/logins')
 def logins():
+    web_logger.info(f"{request.remote_addr} Accessed the logins page.")
     logins_data = []
     
     # Regex pattern to match daily files
@@ -109,6 +115,7 @@ def logins():
 
 @app.route('/connections/monthly')
 def monthly_connections():
+    web_logger.info(f"{request.remote_addr} Accessed the monthly connections page.")
     connections_data = []
     
     # Regex pattern to match daily files
@@ -155,6 +162,7 @@ def monthly_connections():
 
 @app.route('/connections')
 def connections():
+    web_logger.info(f"{request.remote_addr} Accessed the connections page.")
     connections_data = []
     
     # Regex pattern to match daily files
@@ -205,11 +213,13 @@ def connections():
 
 @app.route('/command_history')
 def command_history():
+    web_logger.info(f"{request.remote_addr} Accessed the command history page.")
     command_files = os.listdir(COMMAND_HISTORY_DIR)
     return render_template('command_history.html', files=command_files)
 
 @app.route('/command_history/<filename>')
 def command_history_file(filename):
+    web_logger.info(f"{request.remote_addr} Accessed the command history file: {filename}.")
     filepath = os.path.join(COMMAND_HISTORY_DIR, filename)
     if os.path.exists(filepath):
         with open(filepath) as file:
@@ -219,4 +229,3 @@ def command_history_file(filename):
             return render_template('table.html', tableHTML=tableHTML)
     else:
         return "File not found", 404
-

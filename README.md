@@ -42,6 +42,8 @@ Example: `python3 main.py -a 0.0.0.0 -p 22 -u root -w root`
 - [x] Add support for only specifying a specific password. ( Support any username that gives the password )
 - [ ] Support multiple usernames (in validation)
 - [ ] Support multiple passwords (in validation)
+- [ ] Add a correct way to stop the webserver thread
+- [ ] Check command logging, it still receives \r 
 
 **Usage**
 - [x] Allow change of motd banner
@@ -49,3 +51,4 @@ Example: `python3 main.py -a 0.0.0.0 -p 22 -u root -w root`
 - [x] Allow change of log directory 
 - [ ] Create a systemd setup script
 - [ ] Create a docker container to run the application
+  
